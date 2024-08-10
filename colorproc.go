@@ -69,13 +69,7 @@ func RgbToHsl(r, g, b int) (int, int, int) {
 	}
 
 	c := nvmax - nvmin
-
-	var s float64
-	if l < 0.5 {
-		s = c / (nvmax + nvmin)
-	} else {
-		s = c / (2.0 - nvmax - nvmin)
-	}
+	s := c / (1.0 - math.Abs(2.0*l-1.0))
 
 	var h float64
 	switch vmax {
@@ -91,9 +85,6 @@ func RgbToHsl(r, g, b int) (int, int, int) {
 	if h < 0.0 {
 		h += 360.0
 	}
-
-	fmt.Println(nr, ng, nb)
-	fmt.Println(h, s, l)
 
 	return int(math.Round(h)),
 		int(math.Round(s * 100.0)),
