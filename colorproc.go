@@ -51,41 +51,49 @@ func main() {
 }
 
 func RgbToHsl(r, g, b int) (int, int, int) {
-	rn := float64(r) / 255.0
-	gn := float64(g) / 255.0
-	bn := float64(b) / 255.0
+	vmax := max(r, g, b)
+	vmin := min(r, g, b)
 
-	vmax := max(rn, gn, bn)
-	vmin := min(rn, gn, bn)
-	c := vmax - vmin
-	l := (vmax + vmin) / 2.0
+	// normalize
+	nr := float64(r) / 255.0
+	ng := float64(g) / 255.0
+	nb := float64(b) / 255.0
 
-	const ep = 1.0 / 255.0 / 2.0
-	if c <= ep {
+	nvmax := float64(vmax) / 255.0
+	nvmin := float64(vmin) / 255.0
+
+	l := (nvmax + nvmin) / 2.0
+
+	if vmax == vmin {
 		return 0, 0, int(math.Round(l * 100.0))
 	}
 
+	c := nvmax - nvmin
+
 	var s float64
 	if l < 0.5 {
-		s = c / (vmax + vmin)
+		s = c / (nvmax + nvmin)
 	} else {
-		s = c / (2.0 - vmax - vmin)
+		s = c / (2.0 - nvmax - nvmin)
 	}
 
 	var h float64
-	switch max(r, g, b) {
+	switch vmax {
 	case r:
-		h = (gn - bn) / c
+		h = (ng - nb) / c
 		h = math.Mod(h, 6.0)
 	case g:
-		h = (bn-rn)/c + 2.0
+		h = (nb-nr)/c + 2.0
 	case b:
-		h = (rn-gn)/c + 4.0
+		h = (nr-ng)/c + 4.0
 	}
 	h *= 60.0
 	if h < 0.0 {
 		h += 360.0
 	}
+
+	fmt.Println(nr, ng, nb)
+	fmt.Println(h, s, l)
 
 	return int(math.Round(h)),
 		int(math.Round(s * 100.0)),
