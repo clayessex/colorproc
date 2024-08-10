@@ -50,6 +50,18 @@ func main() {
 	}
 }
 
+func toDeg(hue float64) int {
+	r := hue * 60.0
+	if r < 0 {
+		r += 360.0
+	}
+	return int(math.Round(r))
+}
+
+func toPercent(v float64) int {
+	return int(math.Round(v * 100.0))
+}
+
 func RgbToHsl(r, g, b int) (int, int, int) {
 	vmax := max(r, g, b)
 	vmin := min(r, g, b)
@@ -58,35 +70,27 @@ func RgbToHsl(r, g, b int) (int, int, int) {
 	nr := float64(r) / 255.0
 	ng := float64(g) / 255.0
 	nb := float64(b) / 255.0
-
 	nvmax := float64(vmax) / 255.0
 	nvmin := float64(vmin) / 255.0
 
+	h := 0.0
+	s := 0.0
 	l := (nvmax + nvmin) / 2.0
 
-	if vmax == vmin {
-		return 0, 0, int(math.Round(l * 100.0))
+	if vmax != vmin {
+		c := nvmax - nvmin
+		s = c / (1.0 - math.Abs(2.0*l-1.0))
+
+		switch vmax {
+		case r:
+			h = (ng - nb) / c
+			h = math.Mod(h, 6.0)
+		case g:
+			h = (nb-nr)/c + 2.0
+		case b:
+			h = (nr-ng)/c + 4.0
+		}
 	}
 
-	c := nvmax - nvmin
-	s := c / (1.0 - math.Abs(2.0*l-1.0))
-
-	var h float64
-	switch vmax {
-	case r:
-		h = (ng - nb) / c
-		h = math.Mod(h, 6.0)
-	case g:
-		h = (nb-nr)/c + 2.0
-	case b:
-		h = (nr-ng)/c + 4.0
-	}
-	h *= 60.0
-	if h < 0.0 {
-		h += 360.0
-	}
-
-	return int(math.Round(h)),
-		int(math.Round(s * 100.0)),
-		int(math.Round(l * 100.0))
+	return toDeg(h), toPercent(s), toPercent(l)
 }
