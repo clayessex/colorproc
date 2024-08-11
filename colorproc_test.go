@@ -1,6 +1,12 @@
 package main
 
-import "testing"
+import (
+	"bytes"
+	"fmt"
+	"io"
+	"regexp"
+	"testing"
+)
 
 func TestRgbToHsl(t *testing.T) {
 	data := []struct {
@@ -32,5 +38,44 @@ func TestRgbToHsl(t *testing.T) {
 		if l != v.want[2] {
 			t.Fatalf("lum calc failed on test #%v: got: %v, want %v", i, l, v.want[2])
 		}
+	}
+}
+
+func TestRun(t *testing.T) {
+	var b bytes.Buffer
+	err := Run([]string{"testrun", "-convert", "#808080"}, &b)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	matched, err := regexp.MatchString(`RGB.*\nHSL`, b.String())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !matched {
+		fmt.Printf(">>>\n%s\n<<<\n", b.String())
+		t.Fatal("missing expected output from function Run()")
+	}
+
+	if err = Run([]string{"testrun"}, io.Discard); err == nil {
+		t.Fatal("exptected Run() to return error on missing all args")
+	}
+	if err = Run([]string{"testrun", "-convert"}, io.Discard); err == nil {
+		t.Fatal("exptected Run() to return error on missing arg")
+	}
+	if err = Run([]string{"testrun", "-convert", "22222"}, io.Discard); err == nil {
+		t.Fatal("exptected Run() to return error on invalid arg")
+	}
+	if err := Run([]string{"testrun", "-convert", "hhaaaa"}, io.Discard); err == nil {
+		t.Fatal("expected Run() to return error on invalid arg hex red")
+	}
+	if err := Run([]string{"testrun", "-convert", "aahhaa"}, io.Discard); err == nil {
+		t.Fatal("expected Run() to return error on invalid arg hex green")
+	}
+	if err := Run([]string{"testrun", "-convert", "aaaahh"}, io.Discard); err == nil {
+		t.Fatal("expected Run() to return error on invalid arg hex blue")
+	}
+	if err = Run([]string{"-h"}, io.Discard); err == nil {
+		t.Fatal("exptected Run() to return error on -h")
 	}
 }

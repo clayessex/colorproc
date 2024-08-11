@@ -11,13 +11,13 @@ import (
 )
 
 func main() {
-	if err := run(os.Args, os.Stdout); err != nil {
+	if err := Run(os.Args, os.Stdout); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 }
 
-func run(args []string, stdout io.Writer) error {
+func Run(args []string, stdout io.Writer) error {
 	flags := flag.NewFlagSet(args[0], flag.ExitOnError)
 
 	convert := flags.Bool("convert", false, "Convert a #RGB value to HSL")
