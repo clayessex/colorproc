@@ -1,21 +1,35 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"math"
+	"os"
 	"strconv"
 )
 
 func main() {
-	convert := flag.Bool("convert", false, "Convert a #RGB value to HSL")
+	if err := run(os.Args, os.Stdout); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+}
 
-	flag.Parse()
+func run(args []string, stdout io.Writer) error {
+	flags := flag.NewFlagSet(args[0], flag.ExitOnError)
+
+	convert := flags.Bool("convert", false, "Convert a #RGB value to HSL")
+
+	if err := flags.Parse(args[1:]); err != nil {
+		return err
+	}
 
 	if *convert {
-		rgb := flag.Arg(0)
+		rgb := flags.Arg(0)
 		if len(rgb) == 0 {
-			panic("missing #RGB argument")
+			return errors.New("missing #RGB argument")
 		}
 
 		if rgb[0] == '#' {
@@ -23,31 +37,32 @@ func main() {
 		}
 
 		if len(rgb) != 6 {
-			panic("invalid #RGB argument: " + rgb)
+			return errors.New("invalid #RGB argument: " + rgb)
 		}
 
 		r, err := strconv.ParseUint(rgb[0:2], 16, 8)
 		if err != nil {
-			fmt.Println(err)
-			return
+			return err
 		}
 		g, err := strconv.ParseUint(rgb[2:4], 16, 8)
 		if err != nil {
-			fmt.Println(err)
-			return
+			return err
 		}
 		b, err := strconv.ParseUint(rgb[4:], 16, 8)
 		if err != nil {
-			fmt.Println(err)
-			return
+			return err
 		}
 
 		h, s, l := RgbToHsl(int(r), int(g), int(b))
 
-		fmt.Printf("#%s\n", rgb)
-		fmt.Printf("RGB: (%v, %v, %v)\n", r, g, b)
-		fmt.Printf("HSL: (%v, %v%%, %v%%)\n", h, s, l)
+		fmt.Fprintf(stdout, "#%s\n", rgb)
+		fmt.Fprintf(stdout, "RGB: (%v, %v, %v)\n", r, g, b)
+		fmt.Fprintf(stdout, "HSL: (%v, %v%%, %v%%)\n", h, s, l)
+
+		return nil
 	}
+
+	return errors.New("missing parameters")
 }
 
 func toDeg(hue float64) int {
