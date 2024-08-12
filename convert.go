@@ -60,20 +60,25 @@ func (rgb Rgb) ToHsl() Hsl {
 		case rgb.R:
 			h = (ng - nb) / c
 			h = math.Mod(h, 6.0)
+			if ng < nb {
+				h += 6.0
+			}
 		case rgb.G:
 			h = (nb-nr)/c + 2.0
 		case rgb.B:
 			h = (nr-ng)/c + 4.0
 		}
+
+		h *= 60.0
 	}
 
-	return Hsl{toDeg(h), toPercent(s), toPercent(l)}
+	return Hsl{float32(h), float32(s), float32(l)}
 }
 
 func (hsl Hsl) ToRgb() Rgb {
 	nh := float64(hsl.H)
-	ns := float64(hsl.S) / 100.0
-	nl := float64(hsl.L) / 100.0
+	ns := float64(hsl.S)
+	nl := float64(hsl.L)
 
 	if hsl.S == 0 {
 		v := denorm(nl)
@@ -92,18 +97,6 @@ func (hsl Hsl) ToRgb() Rgb {
 func (hsl Hsl) ToHex() Hex {
 	rgb := hsl.ToRgb()
 	return rgb.ToHex()
-}
-
-func toDeg(hue float64) uint16 {
-	r := hue * 60.0
-	if r < 0 {
-		r += 360.0
-	}
-	return uint16(math.Round(r))
-}
-
-func toPercent(v float64) uint8 {
-	return uint8(math.Round(v * 100.0))
 }
 
 func denorm(v float64) uint8 {

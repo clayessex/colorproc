@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 type Rgb struct {
 	R uint8
@@ -9,9 +12,9 @@ type Rgb struct {
 }
 
 type Hsl struct {
-	H uint16
-	S uint8
-	L uint8
+	H float32 // [0, 360]
+	S float32 // [0, 1]
+	L float32 // [0, 1]
 }
 
 type Hex string
@@ -20,8 +23,12 @@ func (rgb Rgb) String() string {
 	return fmt.Sprintf("RGB(%v, %v, %v)", rgb.R, rgb.G, rgb.B)
 }
 
+func pct(v float32) int {
+	return int(math.Round(float64(v) * 100.0))
+}
+
 func (hsl Hsl) String() string {
-	return fmt.Sprintf("HSL(%v°, %v%%, %v%%)", hsl.H, hsl.S, hsl.L)
+	return fmt.Sprintf("HSL(%v°, %v%%, %v%%)", int(math.Round(float64(hsl.H))), pct(hsl.S), pct(hsl.L))
 }
 
 func (hex Hex) String() string {
