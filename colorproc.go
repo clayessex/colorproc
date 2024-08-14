@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+
+	"github.com/clayessex/colorproc/colors"
 )
 
 func main() {
@@ -25,7 +27,7 @@ func Run(args []string, stdout io.Writer) error {
 	}
 
 	if *convert {
-		hex := Hex(flags.Arg(0))
+		hex := colors.Hex(flags.Arg(0))
 		if len(hex) == 0 {
 			return errors.New("missing #RGB argument")
 		}
