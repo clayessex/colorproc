@@ -19,6 +19,10 @@ type Hsl struct {
 
 type Hex string
 
+func (hex Hex) String() string {
+	return string(hex)
+}
+
 func (rgb Rgb) String() string {
 	return fmt.Sprintf("RGB(%v, %v, %v)", rgb.R, rgb.G, rgb.B)
 }
@@ -31,6 +35,6 @@ func (hsl Hsl) String() string {
 	return fmt.Sprintf("HSL(%v°, %v%%, %v%%)", int(math.Round(float64(hsl.H))), pct(hsl.S), pct(hsl.L))
 }
 
-func (hex Hex) String() string {
-	return string(hex)
+func (hsl Hsl) F3String() string {
+	return fmt.Sprintf("HSL(%.3f°, %.3f%%, %.3f%%)", hsl.H, hsl.S*100.0, hsl.L*100.0)
 }

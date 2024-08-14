@@ -39,7 +39,7 @@ func Run(args []string, stdout io.Writer) error {
 
 		fmt.Println(hex)
 		fmt.Println(rgb)
-		fmt.Println(hsl)
+		fmt.Println(hsl.F3String())
 
 		rgb2 := hsl.ToRgb()
 		hex2 := rgb2.ToHex()
@@ -49,7 +49,7 @@ func Run(args []string, stdout io.Writer) error {
 
 		hsl2 := rgb2.ToHsl()
 		hex3 := hsl2.ToHex()
-		fmt.Println(hsl2)
+		fmt.Println(hsl2.F3String())
 		fmt.Println(hex3)
 
 		return nil
