@@ -27,6 +27,5 @@ colorproc
 # testing
 x
 
-colornames.go.out
-colornames.go
+**/tmp/**/
 

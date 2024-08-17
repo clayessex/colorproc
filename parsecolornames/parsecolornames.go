@@ -3,7 +3,9 @@ package main
 import (
 	"bufio"
 	"compress/gzip"
+	"errors"
 	"fmt"
+	"io/fs"
 	"log"
 	"os"
 	"strings"
@@ -11,7 +13,8 @@ import (
 
 const (
 	ListFilename   = "colornames.csv.gz"
-	OutputFilename = "colornames.go.out"
+	OutputPath     = "../tmp/colornames/"
+	OutputFilename = "colornames.go"
 )
 
 type Color struct {
@@ -57,21 +60,25 @@ func main() {
 		log.Fatal(err)
 	}
 
-	writeColors(OutputFilename, colorNames)
+	writeColors(OutputPath, OutputFilename, colorNames)
 }
 
 // Create a Go code file containing the colors slice
-func writeColors(filename string, colors []Color) {
-	fout, err := os.Create(filename)
+func writeColors(filepath string, filename string, colors []Color) {
+	if _, err := os.Stat(filepath); errors.Is(err, fs.ErrNotExist) {
+		os.Mkdir(filepath, 0775)
+	}
+
+	fout, err := os.Create(filepath + filename)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer fout.Close()
 
 	fout.WriteString(`
-package main
+package colornames
 
-var ColorNames = []struct{
+var List = []struct{
     name string
     rgb string
 }{
