@@ -7,8 +7,6 @@ import (
 	"log"
 	"os"
 	"strings"
-
-	"github.com/clayessex/colorproc/colors"
 )
 
 const (
@@ -18,18 +16,7 @@ const (
 
 type Color struct {
 	name string
-	hex  colors.Hex
-	hsl  colors.Hsl
-	// dist float64
-}
-
-// The choice of 84% yields 57.6 degrees of Hue and then 8% of each Saturation
-// and Luminance
-func distance(a, b colors.Hsl) float64 {
-	x := float64(a.H-b.H) / 360.0
-	y := float64(a.S - b.S)
-	z := float64(a.L - b.L)
-	return 0.84*x + 0.08*y + 0.08*z
+	rgb  string
 }
 
 func main() {
@@ -46,10 +33,9 @@ func main() {
 	defer z.Close()
 
 	colorNames := make([]Color, 0, 30000)
-	// midpoint := colors.Hsl{H: 180.0, S: 0.5, L: 0.5}
 
 	scanner := bufio.NewScanner(z)
-	maxLines := 40000 // 20
+	maxLines := 20
 	first := true
 	for scanner.Scan() {
 		if first {
@@ -64,15 +50,9 @@ func main() {
 		}
 
 		name := fields[0]
-		hex := colors.Hex(fields[1])
-		hsl, err := hex.ToHsl()
-		if err != nil {
-			log.Printf("Line color is not parsable: [%s]", scanner.Text())
-		}
-		// dist := distance(hsl, midpoint)
+		rgb := fields[1]
 
-		// colorNames = append(colorNames, Color{name, hex, hsl, dist})
-		colorNames = append(colorNames, Color{name, hex, hsl})
+		colorNames = append(colorNames, Color{name, rgb})
 
 		if maxLines--; maxLines == 0 {
 			log.Print("reached max lines")
@@ -82,16 +62,6 @@ func main() {
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
-
-	// slices.SortFunc(colorNames, func(a, b Color) int {
-	// 	if a.dist < b.dist {
-	// 		return -1
-	// 	} else if a.dist > b.dist {
-	// 		return 1
-	// 	} else {
-	// 		return 0
-	// 	}
-	// })
 
 	writeColors(OutputFilename, colorNames)
 }
@@ -108,14 +78,12 @@ func writeColors(filename string, colors []Color) {
 	fout.WriteString(`
 const ColorNames = []struct{
     name string
-    hex Hex
-    hsl Hsl
+    rgb string
 }{
 `)
 
 	for _, v := range colors {
-		hslstring := fmt.Sprintf("Hsl{H:%f, S:%f, L:%f}", v.hsl.H, v.hsl.S, v.hsl.L)
-		fmt.Fprintf(fout, ` { name: "%s", hex: "%v", hsl: %v },`, v.name, v.hex, hslstring)
+		fmt.Fprintf(fout, ` { name: "%s", rgb: "%v" },`, v.name, v.rgb)
 		fmt.Fprintf(fout, "\n")
 	}
 
