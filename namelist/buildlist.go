@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"slices"
 	"strings"
 
 	"github.com/clayessex/colorproc/colors"
@@ -21,7 +20,7 @@ type Color struct {
 	name string
 	hex  colors.Hex
 	hsl  colors.Hsl
-	dist float64
+	// dist float64
 }
 
 // The choice of 84% yields 57.6 degrees of Hue and then 8% of each Saturation
@@ -34,12 +33,6 @@ func distance(a, b colors.Hsl) float64 {
 }
 
 func main() {
-	fout, err := os.Create(OutputFilename)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer fout.Close()
-
 	f, err := os.Open(ListFilename)
 	if err != nil {
 		log.Fatal(err)
@@ -53,10 +46,10 @@ func main() {
 	defer z.Close()
 
 	colorNames := make([]Color, 0, 30000)
-	midpoint := colors.Hsl{180.0, 0.5, 0.5}
+	// midpoint := colors.Hsl{H: 180.0, S: 0.5, L: 0.5}
 
 	scanner := bufio.NewScanner(z)
-	maxLines := 20
+	maxLines := 40000 // 20
 	first := true
 	for scanner.Scan() {
 		if first {
@@ -76,9 +69,10 @@ func main() {
 		if err != nil {
 			log.Printf("Line color is not parsable: [%s]", scanner.Text())
 		}
-		dist := distance(hsl, midpoint)
+		// dist := distance(hsl, midpoint)
 
-		colorNames = append(colorNames, Color{name, hex, hsl, dist})
+		// colorNames = append(colorNames, Color{name, hex, hsl, dist})
+		colorNames = append(colorNames, Color{name, hex, hsl})
 
 		if maxLines--; maxLines == 0 {
 			log.Print("reached max lines")
@@ -89,15 +83,27 @@ func main() {
 		log.Fatal(err)
 	}
 
-	slices.SortFunc(colorNames, func(a, b Color) int {
-		if a.dist < b.dist {
-			return -1
-		} else if a.dist > b.dist {
-			return 1
-		} else {
-			return 0
-		}
-	})
+	// slices.SortFunc(colorNames, func(a, b Color) int {
+	// 	if a.dist < b.dist {
+	// 		return -1
+	// 	} else if a.dist > b.dist {
+	// 		return 1
+	// 	} else {
+	// 		return 0
+	// 	}
+	// })
+
+	writeColors(OutputFilename, colorNames)
+}
+
+// Writes to a file (named filename) the contents of colors as a Go const
+// struct slice
+func writeColors(filename string, colors []Color) {
+	fout, err := os.Create(filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer fout.Close()
 
 	fout.WriteString(`
 const ColorNames = []struct{
@@ -107,9 +113,9 @@ const ColorNames = []struct{
 }{
 `)
 
-	for _, v := range colorNames {
-		hslstring := fmt.Sprintf("Hsl{%f, %f, %f}", v.hsl.H, v.hsl.S, v.hsl.L)
-		fmt.Fprintf(fout, ` name: "%s", hex: "%v", hsl: %v, dist: %f`, v.name, v.hex, hslstring, v.dist)
+	for _, v := range colors {
+		hslstring := fmt.Sprintf("Hsl{H:%f, S:%f, L:%f}", v.hsl.H, v.hsl.S, v.hsl.L)
+		fmt.Fprintf(fout, ` { name: "%s", hex: "%v", hsl: %v },`, v.name, v.hex, hslstring)
 		fmt.Fprintf(fout, "\n")
 	}
 
