@@ -35,7 +35,6 @@ func main() {
 	colorNames := make([]Color, 0, 30000)
 
 	scanner := bufio.NewScanner(z)
-	maxLines := 20
 	first := true
 	for scanner.Scan() {
 		if first {
@@ -53,11 +52,6 @@ func main() {
 		rgb := fields[1]
 
 		colorNames = append(colorNames, Color{name, rgb})
-
-		if maxLines--; maxLines == 0 {
-			log.Print("reached max lines")
-			break
-		}
 	}
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
@@ -66,8 +60,7 @@ func main() {
 	writeColors(OutputFilename, colorNames)
 }
 
-// Writes to a file (named filename) the contents of colors as a Go const
-// struct slice
+// Create a Go code file containing the colors slice
 func writeColors(filename string, colors []Color) {
 	fout, err := os.Create(filename)
 	if err != nil {
@@ -76,14 +69,16 @@ func writeColors(filename string, colors []Color) {
 	defer fout.Close()
 
 	fout.WriteString(`
-const ColorNames = []struct{
+package main
+
+var ColorNames = []struct{
     name string
     rgb string
 }{
 `)
 
 	for _, v := range colors {
-		fmt.Fprintf(fout, ` { name: "%s", rgb: "%v" },`, v.name, v.rgb)
+		fmt.Fprintf(fout, `    {name: "%s", rgb: "%v"},`, v.name, v.rgb)
 		fmt.Fprintf(fout, "\n")
 	}
 
