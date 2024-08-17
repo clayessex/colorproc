@@ -79,13 +79,13 @@ func writeColors(filepath string, filename string, colors []Color) {
 package colornames
 
 var List = []struct{
-    name string
-    rgb string
+    Name string
+    Rgb string
 }{
 `)
 
 	for _, v := range colors {
-		fmt.Fprintf(fout, `    {name: "%s", rgb: "%v"},`, v.name, v.rgb)
+		fmt.Fprintf(fout, `    {Name: "%s", Rgb: "%v"},`, v.name, v.rgb)
 		fmt.Fprintf(fout, "\n")
 	}
 
