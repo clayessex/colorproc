@@ -1,6 +1,6 @@
 
 
-all: build/csv/colornames.csv.gz
+all: build/colornames/colornames.go
 
 
 SOURCE_URL = https://github.com/meodai/color-names/raw/master/src/colornames.csv
@@ -11,7 +11,12 @@ build/csv/colornames.csv.gz:
 	wget -O build/csv/colornames.csv ${SOURCE_URL}
 	gzip build/csv/colornames.csv
 
-colornames:
+build/colornames/colornames.go: build/csv/colornames.csv.gz
+	cd parsecolornames && go run .
+
 
 clean:
-	rm -rf build/csv
+	# rm -rf build/csv
+	rm -rf build/colornames
+	rm -rf build/colornamesorted
+

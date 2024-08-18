@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	ListFilename   = "colornames.csv.gz"
-	OutputPath     = "../tmp/colornames/"
+	ListFilename   = "../build/csv/colornames.csv.gz"
+	OutputPath     = "../build/colornames/"
 	OutputFilename = "colornames.go"
 )
 

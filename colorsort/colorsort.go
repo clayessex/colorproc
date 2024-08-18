@@ -8,12 +8,12 @@ import (
 	"os"
 	"slices"
 
+	"github.com/clayessex/colorproc/build/colornames"
 	"github.com/clayessex/colorproc/colors"
-	"github.com/clayessex/colorproc/tmp/colornames"
 )
 
 const (
-	OutputPath     = "../tmp/colornamesorted/"
+	OutputPath     = "../build/colornamesorted/"
 	OutputFilename = "colornamesorted.go"
 )
 
