@@ -3,7 +3,7 @@
 SOURCE_URL = https://github.com/meodai/color-names/raw/master/src/colornames.csv
 
 
-all: build/colornamesorted/colornamesorted.go
+all: build/display/color-display.html
 
 
 ## Download the list of color names
@@ -19,6 +19,9 @@ build/colornames/colornames.go: build/csv/colornames.csv.gz
 ## Sort the color list according to a simple Hue clustering algorithm
 build/colornamesorted/colornamesorted.go: build/colornames/colornames.go
 	cd colorsort && go run .
+
+build/display/color-display.html: build/colornamesorted/colornamesorted.go
+	cd display && go run .
 
 clean:
 	# rm -rf build/csv

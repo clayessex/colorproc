@@ -11,14 +11,12 @@ import (
 )
 
 const (
-	OutputFilenameHue  = "color-display-hue.html"
-	OutputFilenameDist = "color-display.html"
-	OutputPath         = "../build/display/"
+	OutputFilename = "color-display.html"
+	OutputPath     = "../build/display/"
 )
 
 func main() {
-	WriteColorList(OutputPath, OutputFilenameHue)
-	WriteColorList(OutputPath, OutputFilenameDist)
+	WriteColorList(OutputPath, OutputFilename)
 }
 
 func WriteColorList(filepath, filename string) {
