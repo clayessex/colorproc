@@ -19,27 +19,40 @@ const (
 
 type ColorInfo struct {
 	name string
-	rgb  colors.Hex
+	hex  colors.Hex
+	rgb  colors.Rgb
 	hsl  colors.Hsl
 	pos  float64
 }
 
 func main() {
 	colorlist := make([]ColorInfo, 0, 30000)
-	midpoint := colors.Hsl{H: 180.0, S: 0.5, L: 0.5}
 
 	for _, v := range colornames.List {
-		rgb := colors.Hex(v.Rgb)
-		hsl, err := rgb.ToHsl()
+		hex := colors.Hex(v.Rgb)
+		rgb, err := hex.ToRgb()
 		if err != nil {
 			log.Printf("invalid rgb value: %s\n", v.Rgb)
 			continue
 		}
-		pos := colors.Distance2(hsl, midpoint)
-		colorlist = append(colorlist, ColorInfo{v.Name, rgb, hsl, pos})
+		hsl := rgb.ToHsl()
+		pos := 0.0
+		colorlist = append(colorlist, ColorInfo{v.Name, hex, rgb, hsl, pos})
 	}
 
-	slices.SortFunc(colorlist, func(a, b ColorInfo) int {
+	SortHue(colorlist)
+
+	WriteColorNames(OutputPath, OutputFilename, colorlist)
+}
+
+func SortHue(list []ColorInfo) {
+	midpoint := colors.Rgb{R: 127, G: 127, B: 127}
+
+	for i := 0; i < len(list); i++ {
+		list[i].pos = colors.Distance(midpoint, list[i].rgb)
+	}
+
+	slices.SortFunc(list, func(a, b ColorInfo) int {
 		if a.pos < b.pos {
 			return -1
 		}
@@ -48,8 +61,6 @@ func main() {
 		}
 		return 0
 	})
-
-	WriteColorNames(OutputPath, OutputFilename, colorlist)
 }
 
 func WriteColorNames(filepath, filename string, s []ColorInfo) {
