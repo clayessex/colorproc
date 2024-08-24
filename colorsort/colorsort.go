@@ -35,7 +35,7 @@ func main() {
 			log.Printf("invalid rgb value: %s\n", v.Rgb)
 			continue
 		}
-		pos := distance(hsl, midpoint)
+		pos := colors.Distance2(hsl, midpoint)
 		colorlist = append(colorlist, ColorInfo{v.Name, rgb, hsl, pos})
 	}
 
@@ -50,15 +50,6 @@ func main() {
 	})
 
 	WriteColorNames(OutputPath, OutputFilename, colorlist)
-}
-
-// The choice of 84% yields 57.6 degrees of Hue and then 8% of each Saturation
-// and Luminance
-func distance(a, b colors.Hsl) float64 {
-	x := float64(a.H-b.H) / 360.0
-	y := float64(a.S - b.S)
-	z := float64(a.L - b.L)
-	return 0.84*x + 0.08*y + 0.08*z
 }
 
 func WriteColorNames(filepath, filename string, s []ColorInfo) {
@@ -80,10 +71,16 @@ var List = []struct {
 }{
 `)
 
+	lines := 6
+
 	for _, v := range s {
 		fmt.Fprintf(f, `    {Name: "%s", Rgb: "%s"},`, v.name, v.rgb)
 		fmt.Fprintf(f, "\n")
+		lines++
 	}
 
 	f.WriteString("}\n")
+	lines++
+
+	fmt.Printf("Wrote %v lines\n", lines)
 }
