@@ -33,7 +33,7 @@ func (h Hex) ToHsl() (Hsl, error) {
 }
 
 func (rgb Rgb) ToHex() Hex {
-	s := fmt.Sprintf("#%x%x%x", rgb.R, rgb.G, rgb.B)
+	s := fmt.Sprintf("#%02x%02x%02x", rgb.R, rgb.G, rgb.B)
 	return Hex(s)
 }
 
