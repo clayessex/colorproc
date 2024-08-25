@@ -35,6 +35,6 @@ func (hsl Hsl) String() string {
 	return fmt.Sprintf("HSL(%v°, %v%%, %v%%)", int(math.Round(float64(hsl.H))), pct(hsl.S), pct(hsl.L))
 }
 
-func (hsl Hsl) F3String() string {
-	return fmt.Sprintf("HSL(%.3f°, %.3f%%, %.3f%%)", hsl.H, hsl.S*100.0, hsl.L*100.0)
+func (hsl Hsl) FString() string {
+	return fmt.Sprintf("HSL(%.9f°, %.9f%%, %.9f%%)", hsl.H, hsl.S*100.0, hsl.L*100.0)
 }
